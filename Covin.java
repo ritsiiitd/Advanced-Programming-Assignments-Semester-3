@@ -360,7 +360,19 @@ public class Covin {
                 System.out.println("Only citizens of age equal to and above 18 are allowed");
             }
             else{
+                boolean duplicateid=false;
+                for(int i=0;i<allCitizens.size();i++){
+                    if(allCitizens.get(i).UID==UID){
+                        duplicateid=true;
+                        break;
+                    }
+                }
+                if(duplicateid){
+                    System.out.println("Citizen with UID "+UID+" already REGISTERED");
+                }
+                else{
                 RegisterCitizen(allCitizens, cname, UID, age);
+                }
             }
         }
         if(ip==4){
