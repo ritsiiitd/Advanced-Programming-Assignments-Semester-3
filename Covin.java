@@ -35,6 +35,22 @@ public class Covin {
         int dosesTaken;
     }
 
+    public static void addVaccineHelper(ArrayList<Vaccine> allVaccines){
+        Scanner sc=new Scanner(System.in);
+        System.out.print("Vaccine name: ");
+        sc.nextLine();
+        String vname=sc.nextLine();
+        
+        System.out.print("Number of Doses: ");
+        int doses=sc.nextInt();
+        int gap=0;
+        if(doses>1){
+        System.out.print("Gap between Doses: ");
+        gap=sc.nextInt();
+        }
+        addVaccine(allVaccines, vname, doses, gap);    
+    }
+
     public static void addVaccine(ArrayList<Vaccine> allVaccines,String vname, int doses,int gap){
         Vaccine v=new Vaccine();
         v.vname=vname;
@@ -43,6 +59,20 @@ public class Covin {
 
         allVaccines.add(v);
         System.out.println("Vaccine Name: "+vname+", Number of Doses: "+doses+", Gap Between Doses: "+gap);
+    }
+
+    public static void RegisterHospitalHelper(ArrayList<Hospital> allHospitals){
+        Scanner sc=new Scanner(System.in);
+        System.out.print("Hospital name: ");
+            sc.nextLine();
+            String hname=sc.nextLine();
+            hcount++;
+        
+            System.out.print("Pincode: ");
+            int pincode=sc.nextInt();
+
+            int Id=generateId(hcount);
+            RegisterHospital(allHospitals, hname, Id, pincode);
     }
     public static void RegisterHospital(ArrayList<Hospital> allHospitals,String hname, int Id,int pincode){
         Hospital h=new Hospital();
@@ -54,6 +84,35 @@ public class Covin {
         System.out.println("Hospital Name: "+hname+", Pincode: "+pincode+", Unique ID: "+Id);
     }
 
+    public static void RegisterCitizenHelper(ArrayList<Citizen> allCitizens){
+        Scanner sc=new Scanner(System.in);
+        System.out.print("Citizen name: ");
+            sc.nextLine();
+            String cname=sc.nextLine();
+
+            System.out.print("Age: ");
+            int age=sc.nextInt();
+            System.out.print("Unique ID: ");
+            long UID=sc.nextLong();
+            if(age<18){
+                System.out.println("Only citizens of age equal to and above 18 are allowed");
+            }
+            else{
+                boolean duplicateid=false;
+                for(int i=0;i<allCitizens.size();i++){
+                    if(allCitizens.get(i).UID==UID){
+                        duplicateid=true;
+                        break;
+                    }
+                }
+                if(duplicateid){
+                    System.out.println("Citizen with UID "+UID+" already REGISTERED");
+                }
+                else{
+                RegisterCitizen(allCitizens, cname, UID, age);
+                }
+            }
+    }
     public static void RegisterCitizen(ArrayList<Citizen> allCitizens, String cname,long UID,int age){
         Citizen c=new Citizen();
         c.name=cname;
@@ -64,7 +123,36 @@ public class Covin {
         System.out.println("Citizen Name: "+cname+", Age: "+age+", Unique ID: "+UID);
 
     }
-
+    public static void createSlotHelper(ArrayList<Vaccine> allVaccines,ArrayList<Hospital> allHospitals){
+        Scanner sc=new Scanner(System.in);
+        System.out.print("Enter Hospital ID: ");
+        int hid=sc.nextInt();
+        Hospital t=null;
+        for(int i=0;i<allHospitals.size();i++){
+            if(allHospitals.get(i).ID==hid){
+                t=allHospitals.get(i);
+            }
+        }
+        if(t==null){
+            System.out.println("Enter a valid Hospital Id");
+            return;
+        }
+        System.out.print("Enter number of Slots to be added: ");
+        int no_of_slots=sc.nextInt();
+        for(int i=0;i<no_of_slots;i++){
+            System.out.print("Enter Day Number: ");
+            int day_no=sc.nextInt();
+            System.out.print("Enter Quantity: ");
+            int qty=sc.nextInt();
+            System.out.println("Select Vaccine");
+            for(int j=0;j<allVaccines.size();j++){
+                System.out.println(j+" "+allVaccines.get(j).vname);
+            }
+            int vaccine_choice=sc.nextInt();
+            createSlots(t, allVaccines, vaccine_choice, day_no, qty);
+            
+        }
+    }
     static void createSlots(Hospital hospital_obj,ArrayList<Vaccine> allVaccines, int vaccine_choice ,int day_no, int qty){    
         Slot newslot=new Slot();
         newslot.day=day_no;
@@ -315,8 +403,10 @@ public class Covin {
         }
         return Id;
     }
+
+    static int hcount=0;
     public static void main(String[] args) {
-        int hcount=0;
+        
         Scanner sc=new Scanner(System.in);
         ArrayList<Vaccine> allVaccines=new ArrayList<>();
         ArrayList<Hospital> allHospitals=new ArrayList<>();
@@ -325,94 +415,23 @@ public class Covin {
       while(ip!=8){  
 
         if(ip==1){
-        System.out.print("Vaccine name: ");
-        sc.nextLine();
-        String vname=sc.nextLine();
-        
-        System.out.print("Number of Doses: ");
-        int doses=sc.nextInt();
-        int gap=0;
-        if(doses>1){
-        System.out.print("Gap between Doses: ");
-        gap=sc.nextInt();
-        }
-        addVaccine(allVaccines, vname, doses, gap);
+            addVaccineHelper(allVaccines);
         }
 
         if(ip==2){
-            System.out.print("Hospital name: ");
-            sc.nextLine();
-            String hname=sc.nextLine();
-            hcount++;
-        
-            System.out.print("Pincode: ");
-            int pincode=sc.nextInt();
-
-            int Id=generateId(hcount);
-            RegisterHospital(allHospitals, hname, Id, pincode);
+            RegisterHospitalHelper(allHospitals);
         }
         if(ip==3){
-            System.out.print("Citizen name: ");
-            sc.nextLine();
-            String cname=sc.nextLine();
-
-            System.out.print("Age: ");
-            int age=sc.nextInt();
-            System.out.print("Unique ID: ");
-            long UID=sc.nextLong();
-            if(age<18){
-                System.out.println("Only citizens of age equal to and above 18 are allowed");
-            }
-            else{
-                boolean duplicateid=false;
-                for(int i=0;i<allCitizens.size();i++){
-                    if(allCitizens.get(i).UID==UID){
-                        duplicateid=true;
-                        break;
-                    }
-                }
-                if(duplicateid){
-                    System.out.println("Citizen with UID "+UID+" already REGISTERED");
-                }
-                else{
-                RegisterCitizen(allCitizens, cname, UID, age);
-                }
-            }
+            RegisterCitizenHelper(allCitizens);
         }
         if(ip==4){
-        System.out.print("Enter Hospital ID: ");
-        int hid=sc.nextInt();
-        Hospital t=null;
-        for(int i=0;i<allHospitals.size();i++){
-            if(allHospitals.get(i).ID==hid){
-                t=allHospitals.get(i);
-            }
-        }
-        if(t==null){
-            System.out.println("Enter a valid Hospital Id");
-            continue;
-        }
-        System.out.print("Enter number of Slots to be added: ");
-        int no_of_slots=sc.nextInt();
-        for(int i=0;i<no_of_slots;i++){
-            System.out.print("Enter Day Number: ");
-            int day_no=sc.nextInt();
-            System.out.print("Enter Quantity: ");
-            int qty=sc.nextInt();
-            System.out.println("Select Vaccine");
-            for(int j=0;j<allVaccines.size();j++){
-                System.out.println(j+" "+allVaccines.get(j).vname);
-            }
-            int vaccine_choice=sc.nextInt();
-            createSlots(t, allVaccines, vaccine_choice, day_no, qty);
-            
-        }
+            createSlotHelper(allVaccines,allHospitals);
         }
         if(ip==5){
             bookSlotHelper(allHospitals,allCitizens);
         }
         if(ip==6){
-         slotsAvailable(allHospitals);   
+            slotsAvailable(allHospitals);   
         }
 
         if(ip==7){
