@@ -118,9 +118,11 @@ public class Covin {
             System.out.print("Enter hospital id: ");
             int hid=sc.nextInt();
             Hospital host;
+            boolean hidValid=false;
             for(int i=0;i<allHospitals.size();i++){
                 host=allHospitals.get(i);
                 if(host.ID==hid){
+                    hidValid=true;
                     if(host.HospitalSlots.size()==0){
                         System.out.println("No slots available");
                         return;
@@ -161,7 +163,9 @@ public class Covin {
                     }
                 }
             }
-
+            if(!hidValid){
+                System.out.println("enter a valid hospital ID");
+            }
 
         }
         else if(searchQuery==2){
