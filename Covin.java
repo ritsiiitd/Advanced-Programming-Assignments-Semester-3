@@ -51,7 +51,7 @@ public class Covin {
         addVaccine(allVaccines, vname, doses, gap);    
     }
 
-    public static void addVaccine(ArrayList<Vaccine> allVaccines,String vname, int doses,int gap){
+    public static void addVaccine(ArrayList<Vaccine> allVaccines,String vname, int doses,int gap){//option 1
         Vaccine v=new Vaccine();
         v.vname=vname;
         v.doses=doses;
@@ -74,7 +74,7 @@ public class Covin {
             int Id=generateId(hcount);
             RegisterHospital(allHospitals, hname, Id, pincode);
     }
-    public static void RegisterHospital(ArrayList<Hospital> allHospitals,String hname, int Id,int pincode){
+    public static void RegisterHospital(ArrayList<Hospital> allHospitals,String hname, int Id,int pincode){ //option 2
         Hospital h=new Hospital();
         h.hname=hname;
         h.pincode=pincode;
@@ -113,7 +113,7 @@ public class Covin {
                 }
             }
     }
-    public static void RegisterCitizen(ArrayList<Citizen> allCitizens, String cname,long UID,int age){
+    public static void RegisterCitizen(ArrayList<Citizen> allCitizens, String cname,long UID,int age){ //option 3
         Citizen c=new Citizen();
         c.name=cname;
         c.UID=UID;
@@ -153,7 +153,7 @@ public class Covin {
             
         }
     }
-    static void createSlots(Hospital hospital_obj,ArrayList<Vaccine> allVaccines, int vaccine_choice ,int day_no, int qty){    
+    static void createSlots(Hospital hospital_obj,ArrayList<Vaccine> allVaccines, int vaccine_choice ,int day_no, int qty){  //option 4  
         Slot newslot=new Slot();
         newslot.day=day_no;
         newslot.qty=qty;
@@ -314,7 +314,7 @@ public class Covin {
             }
             System.out.println(patient.name+" vaccinated with "+patient.vaccineTaken.vname);
     }
-    static void bookSlotHelper(ArrayList<Hospital> allHospitals,ArrayList<Citizen> allCitizens){
+    static void bookSlotHelper(ArrayList<Hospital> allHospitals,ArrayList<Citizen> allCitizens){//option 5
         Scanner sc=new Scanner(System.in);
         System.out.print("Enter patient Unique ID: ");
         long pUID=sc.nextLong();
@@ -352,7 +352,7 @@ public class Covin {
 
     }
 
-    static void slotsAvailable(ArrayList<Hospital> allHospitals){
+    static void slotsAvailable(ArrayList<Hospital> allHospitals){//option 6
         Scanner sc=new Scanner(System.in);
         System.out.print("Enter Hospital ID: ");
         int hid=sc.nextInt();
@@ -375,8 +375,8 @@ public class Covin {
             System.out.println("Not a valid hospital ID");
         }
     }
-
-    static void checkVaccinationStatus(ArrayList<Citizen> allCitizens){
+/////add same vaccine for same hospital in same 
+    static void checkVaccinationStatus(ArrayList<Citizen> allCitizens){//option 7
         Scanner sc=new Scanner(System.in);
         System.out.println("Enter patient ID");
         long pUID=sc.nextLong();
@@ -392,6 +392,9 @@ public class Covin {
                     System.out.println("No vaccine taken till now");
                 }
                 System.out.println("Number of doses given: "+p.dosesTaken);
+                if(p.dosesTaken!=0){
+                System.out.println("Next Dose duee date: "+p.due_date);
+                }
                 break;
             }
         }
@@ -415,15 +418,18 @@ public class Covin {
         return Id;
     }
 
-    static int hcount=0;
+    static int hcount=0;//to keep track of hospitals
     public static void main(String[] args) {
-        
+        System.out.println("CoWin Portal initialized....");
         Scanner sc=new Scanner(System.in);
         ArrayList<Vaccine> allVaccines=new ArrayList<>();
         ArrayList<Hospital> allHospitals=new ArrayList<>();
         ArrayList<Citizen> allCitizens=new ArrayList<>();
+        System.out.println("---------------------------------");
+        System.out.println("1. Add Vaccine\n2. Register Hospital\n3. Register Citizen\n4. Add Slot for Vaccination\n5. Book Slot for Vaccination\n6. List all slots for a hospital\n7. Check Vaccination Status\n8. Exit");
+        System.out.println("---------------------------------");
         int ip=sc.nextInt();
-      while(ip!=8){  
+        while(ip!=8){  
 
         if(ip==1){
             addVaccineHelper(allVaccines);
@@ -447,14 +453,12 @@ public class Covin {
         if(ip==7){
             checkVaccinationStatus(allCitizens);
         }
-
+        System.out.println("---------------------------------");
+        System.out.println("1. Add Vaccine\n2. Register Hospital\n3. Register Citizen\n4. Add Slot for Vaccination\n5. Book Slot for Vaccination\n6. List all slots for a hospital\n7. Check Vaccination Status\n8. Exit");
+        System.out.println("---------------------------------");
         ip=sc.nextInt();
-
-        
     }
-    //for(int i=0;i<allHospitals.size();i++){
-    //     System.out.println(allHospitals.get(i).hname+ " " + allHospitals.get(i).ID);
-    // }
+    
         
     }
 }
