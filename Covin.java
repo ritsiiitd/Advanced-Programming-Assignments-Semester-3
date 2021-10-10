@@ -144,7 +144,11 @@ public class Covin {
             int day_no=sc.nextInt();
             System.out.print("Enter Quantity: ");
             int qty=sc.nextInt();
-            System.out.println("Select Vaccine");
+            if(allVaccines.size()==0){
+                System.out.println("No vaccine added");
+                return;
+            }
+            System.out.println("Select Vaccine from below list");
             for(int j=0;j<allVaccines.size();j++){
                 System.out.println(j+" "+allVaccines.get(j).vname);
             }
@@ -375,7 +379,7 @@ public class Covin {
             System.out.println("Not a valid hospital ID");
         }
     }
-/////add same vaccine for same hospital in same 
+
     static void checkVaccinationStatus(ArrayList<Citizen> allCitizens){//option 7
         Scanner sc=new Scanner(System.in);
         System.out.println("Enter patient ID");
