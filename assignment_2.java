@@ -55,14 +55,14 @@ public class assignment_2 {
         }
 
         public void viewAssessments(){
-            for(int i=0;i<allAssessments.size();i++){
-                assessment a = allAssessments.get(i);
+            for(int i=0;i<openAssessments.size();i++){
+                assessment a = openAssessments.get(i);
                 if(a.type.equalsIgnoreCase("assignment")){
-                    System.out.println("ID: "+i+" Assignment:"+a.ques+" Max-Marks:"+a.maxMarks);
+                    System.out.println("ID: "+a.id+" Assignment:"+a.ques+" Max-Marks:"+a.maxMarks);
                     System.out.println("-------------------------------------------------------------------------------------------");
                 }
                 else if(a.type.equalsIgnoreCase("quiz")){
-                    System.out.println("ID: "+i+" Question:"+a.ques);
+                    System.out.println("ID: "+a.id+" Question:"+a.ques);
                     System.out.println("-------------------------------------------------------------------------------------------");
                 }
             }
@@ -77,10 +77,26 @@ public class assignment_2 {
         }
         public void addAssessment(assessment a){
             allAssessments.add(a);
+            openAssessments.add(a);
             for(int i=0;i<allStudents.size();i++){
                 Student stu=allStudents.get(i);
                 stu.myPendingAssessments.add(a);
             }
+        }
+
+        public void displaySubmissions(assessment a){
+            for(int i=0;i<allStudents.size();i++){
+                Student s=allStudents.get(i);
+                for(int j=0;j<s.mySubmissions.size();i++){
+                    if(s.mySubmissions.get(j).assessmentId==a.id && s.mySubmissions.get(j).grades==-1){//means this submission is not graded till now
+                        System.out.println(s.sid + " "+ s.sname);
+                    }
+                }
+            }
+        }
+        public void gradeAssessments(assessment a,Student s){
+            
+
         }
     }
 
@@ -173,7 +189,7 @@ public class assignment_2 {
     }
     static class submission{
         String solution;
-        float grades;
+        int grades;
         int assessmentId;
 
         submission(String soln,int assessId){
@@ -188,7 +204,8 @@ public class assignment_2 {
     static ArrayList<Teacher> allTeachers=new ArrayList<>();
     static ArrayList<Student> allStudents=new ArrayList<>();
     static ArrayList<assessment> allAssessments=new ArrayList<>();
-
+    static ArrayList<assessment> openAssessments=new ArrayList<>();
+    static ArrayList<assessment> closedAssessments=new ArrayList<>();
     public static void displayTeachermenu(){
         System.out.println("1. Add class material\n2. Add assessments\n3. View lecture materials\n4. View assessments\n5. Grade assessments\n6. Close assessment\n7. View comments\n8. Add comments\n9. Logout");
     }
@@ -221,7 +238,6 @@ public class assignment_2 {
         }
         return a;
     }
-
 
     static int currentAssessmentNumber=0;
     
@@ -303,6 +319,28 @@ public class assignment_2 {
                 }
                 else if(task==4){
                     c.viewAssessments();
+                }
+                else if(task==5){
+                    System.out.println("List of assessments");//displaying all assessments given so far(open plus closed)
+                    for(int i=0;i<allAssessments.size();i++){
+                        assessment a=allAssessments.get(i);
+                        if(a.type.equalsIgnoreCase("assignment")){
+                            System.out.println("ID: "+a.id+" Assignment:"+a.ques+" Max-Marks:"+a.maxMarks);
+                        }
+                        else if(a.type.equalsIgnoreCase("quiz")){
+                            System.out.println("ID: "+a.id+" Question:"+a.ques);
+                        }
+                    }
+                    System.out.print("Enter ID of assessment to view submissions: ");
+                    int idx=Integer.parseInt(br.readLine());
+                    assessment toGrade=allAssessments.get(idx);
+
+                    System.out.println("Choose ID from these ungraded submissions");
+                    it.displaySubmissions(toGrade);
+                    int stg=Integer.parseInt(br.readLine());
+                    Student stutograde=allStudents.get(stg);
+                    it.gradeAssessments(toGrade, stutograde);
+
                 }
 
                 displayTeachermenu();
