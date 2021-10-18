@@ -69,13 +69,13 @@ public class assignment_2 {
         }
     }
     static class InstructorTasks extends common{
-        public void addClassMaterial(slide s){
+        private void addClassMaterial(slide s){
             allslides.add(s);
         }
-        public void addClassMaterial(video v){
+        private void addClassMaterial(video v){
             allvideos.add(v);
         }
-        public void addAssessment(assessment a){
+        private void addAssessment(assessment a){
             allAssessments.add(a);
             openAssessments.add(a);
             for(int i=0;i<allStudents.size();i++){
@@ -84,19 +84,36 @@ public class assignment_2 {
             }
         }
 
-        public void displaySubmissions(assessment a){
+        private boolean displaySubmissions(assessment a){
+            boolean found=false;
             for(int i=0;i<allStudents.size();i++){
                 Student s=allStudents.get(i);
-                for(int j=0;j<s.mySubmissions.size();i++){
+                for(int j=0;j<s.mySubmissions.size();j++){
                     if(s.mySubmissions.get(j).assessmentId==a.id && s.mySubmissions.get(j).grades==-1){//means this submission is not graded till now
-                        System.out.println(s.sid + " "+ s.sname);
+                        found=true;
+                        System.out.println(s.sid + ". "+ s.sname);
                     }
                 }
             }
+            return found;
         }
-        public void gradeAssessments(assessment a,Student s){
-            
 
+        private void gradeAssessments(assessment a,Student s)throws IOException{
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            submission grSub=null;
+            for(int i=0;i<s.mySubmissions.size();i++){
+                if(s.mySubmissions.get(i).assessmentId==a.id && s.mySubmissions.get(i).grades==-1){
+                    grSub=s.mySubmissions.get(i);
+                    break;
+                }
+            }
+            System.out.println("Submission: "+grSub.solution);
+            System.out.println("--------------------------------------------------------------------");
+            System.out.println("Max marks: "+a.maxMarks);
+            System.out.print("Marks scored: ");
+            int score=Integer.parseInt(br.readLine());
+
+            grSub.grades=score;
         }
     }
 
@@ -120,7 +137,6 @@ public class assignment_2 {
                 }
             }
             else{
-                System.out.println("entered submitassv  "+a.type+" "+a.ques);
                 System.out.print(a.ques+" ");
                 soln=br.readLine();
             }
@@ -336,10 +352,15 @@ public class assignment_2 {
                     assessment toGrade=allAssessments.get(idx);
 
                     System.out.println("Choose ID from these ungraded submissions");
-                    it.displaySubmissions(toGrade);
+                    boolean available=it.displaySubmissions(toGrade);
+                    if(available){
                     int stg=Integer.parseInt(br.readLine());
                     Student stutograde=allStudents.get(stg);
                     it.gradeAssessments(toGrade, stutograde);
+                    }
+                    else{
+                        System.out.println("No ungraded submissions for this assignment are available");
+                    }
 
                 }
 
