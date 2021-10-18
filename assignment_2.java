@@ -31,6 +31,7 @@ public class assignment_2 {
 
     interface BackPack {
         public void viewLectureMaterial();
+        public void viewAssessments();
     }
 
     static class common implements BackPack{
@@ -69,13 +70,13 @@ public class assignment_2 {
         }
     }
     static class InstructorTasks extends common{
-        private void addClassMaterial(slide s){
+        public void addClassMaterial(slide s){
             allslides.add(s);
         }
-        private void addClassMaterial(video v){
+        public void addClassMaterial(video v){
             allvideos.add(v);
         }
-        private void addAssessment(assessment a){
+        public void addAssessment(assessment a){
             allAssessments.add(a);
             openAssessments.add(a);
             for(int i=0;i<allStudents.size();i++){
@@ -98,7 +99,7 @@ public class assignment_2 {
             return found;
         }
 
-        private void gradeAssessments(assessment a,Student s)throws IOException{
+        private void gradeAssessments(assessment a,Student s,Teacher teach)throws IOException{
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             submission grSub=null;
             for(int i=0;i<s.mySubmissions.size();i++){
@@ -114,6 +115,23 @@ public class assignment_2 {
             int score=Integer.parseInt(br.readLine());
 
             grSub.grades=score;
+            grSub.gradedBy=teach;
+        }
+
+        public void closeAssessment(assessment a){
+            openAssessments.remove(a);
+            closedAssessments.add(a);
+            for(int i=0;i<allStudents.size();i++){
+                Student s=allStudents.get(i);
+                boolean notsubmitted=false;
+                for(int j=0;j<s.myPendingAssessments.size();j++){
+                    if(s.myPendingAssessments.get(j).id==a.id){
+                        notsubmitted=true;
+                    }
+                }
+                if(notsubmitted)
+                s.myPendingAssessments.remove(a);
+            }
         }
     }
 
@@ -121,9 +139,7 @@ public class assignment_2 {
 
         public void submitAssessments(Student s, assessment a)throws IOException{
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-          
-            
+  
             String soln="";
             if(a.type.equalsIgnoreCase("assignment"))
             {
@@ -146,7 +162,28 @@ public class assignment_2 {
 
             s.myPendingAssessments.remove(a);
         }
-    }
+
+        public void viewGrades(Student s){
+
+            System.out.println("Graded Submissions");
+            for(int i=0;i<s.mySubmissions.size();i++){
+                submission subm=s.mySubmissions.get(i);
+                if(subm.grades!=-1){ 
+                    System.out.println("Submission: "+subm.solution);
+                    System.out.println("Marks Scored: "+subm.grades);
+                    System.out.println("Graded by: "+subm.gradedBy.tname);
+                }
+            }
+
+            System.out.println("Ungraded Submissions");
+            for(int i=0;i<s.mySubmissions.size();i++){
+                submission subm=s.mySubmissions.get(i);
+                if(subm.grades==-1){ 
+                    System.out.println("Submission: "+subm.solution);
+                }
+            }
+        }
+    }   
     static class video{
         String topic;
         String filename;
@@ -207,12 +244,13 @@ public class assignment_2 {
         String solution;
         int grades;
         int assessmentId;
+        Teacher gradedBy;
 
         submission(String soln,int assessId){
             solution=soln;
             grades=-1;//not graded yet
             assessmentId=assessId;
-
+            gradedBy=null;
         }
     }
     static ArrayList<slide> allslides=new ArrayList<>();
@@ -272,8 +310,6 @@ public class assignment_2 {
             allStudents.add(s);
         }
 
-        common c=new common();//to call common functions
-
         System.out.println("Welcome to Backpack\n1. Enter as instructor\n2. Enter as student\n3. Exit");
         int ch=Integer.parseInt(br.readLine());
         while(ch!=3){
@@ -286,11 +322,12 @@ public class assignment_2 {
                 }
                 System.out.print("Choose id: ");
                 int id=Integer.parseInt(br.readLine());
-                String teacherName=allTeachers.get(id).tname;
-
+                Teacher teach=allTeachers.get(id);
+                
                 displayTeachermenu();
 
                 int task=Integer.parseInt(br.readLine());
+
                 while(task!=9)
                 {
                 if(task==1){
@@ -304,7 +341,7 @@ public class assignment_2 {
                         System.out.print("Enter number of slides:");
                         int num=Integer.parseInt(br.readLine());
                         slide s=new slide();
-                        s.createSlide(topic,num,teacherName);
+                        s.createSlide(topic,num,teach.tname);
                         it.addClassMaterial(s);
                     }
                     else if(lecmat_ch==2){
@@ -312,7 +349,7 @@ public class assignment_2 {
                         String topic=br.readLine();
                         System.out.print("Enter filename of video: ");
                         String file=br.readLine();
-                        video v=new video(topic, file, teacherName);
+                        video v=new video(topic, file, teach.tname);
                         if(v.extention.equals(".mp4")){
                             it.addClassMaterial(v);
                         }
@@ -331,10 +368,10 @@ public class assignment_2 {
                 }
 
                 else if(task==3){
-                    c.viewLectureMaterial();
+                    it.viewLectureMaterial();
                 }
                 else if(task==4){
-                    c.viewAssessments();
+                    it.viewAssessments();
                 }
                 else if(task==5){
                     System.out.println("List of assessments");//displaying all assessments given so far(open plus closed)
@@ -349,19 +386,29 @@ public class assignment_2 {
                     }
                     System.out.print("Enter ID of assessment to view submissions: ");
                     int idx=Integer.parseInt(br.readLine());
+                    
                     assessment toGrade=allAssessments.get(idx);
 
                     System.out.println("Choose ID from these ungraded submissions");
                     boolean available=it.displaySubmissions(toGrade);
                     if(available){
                     int stg=Integer.parseInt(br.readLine());
-                    Student stutograde=allStudents.get(stg);
-                    it.gradeAssessments(toGrade, stutograde);
+                    Student stutograde=allStudents.get(stg);//student to grade
+                    it.gradeAssessments(toGrade, stutograde,teach);
                     }
                     else{
                         System.out.println("No ungraded submissions for this assignment are available");
                     }
 
+                }
+
+                else if(task==6){
+                    System.out.println("List of open assessments");
+                    it.viewAssessments();
+                    System.out.println("Enter ID of assessment to be closed");
+                    int close=Integer.parseInt(br.readLine());
+                    assessment closea=allAssessments.get(close);
+                    it.closeAssessment(closea);
                 }
 
                 displayTeachermenu();
@@ -378,12 +425,19 @@ public class assignment_2 {
                 System.out.print("Choose id: ");
                 int id=Integer.parseInt(br.readLine());
                 Student loggedinS=allStudents.get(id);
+
                 displayStudentmenu();
-
                 int task=Integer.parseInt(br.readLine());
-                while(task!=7){
 
-                    if(task==3){
+                while(task!=7){
+                    if(task==1){
+                        st.viewLectureMaterial();
+                    }
+                    else if(task==2){
+                        st.viewAssessments();
+                    }
+
+                    else if(task==3){
                         if(loggedinS.myPendingAssessments.size()==0){
                             System.out.println("No pending assessment");
                             displayStudentmenu();
@@ -406,6 +460,17 @@ public class assignment_2 {
                         st.submitAssessments(loggedinS, tosolve);
                         }
                     }
+                    else if(task==4){
+                        st.viewGrades(loggedinS);
+                    }
+                    else if(task==5){
+
+                    }
+                    else if(task==6){
+                        System.out.print("Enter comment: ");
+                        String comment=br.readLine();
+                    }
+
                 displayStudentmenu();
                 task=Integer.parseInt(br.readLine());
                 }
