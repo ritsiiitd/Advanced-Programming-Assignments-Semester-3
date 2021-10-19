@@ -2,7 +2,6 @@
 import java.util.*;
 import java.io.*;
 
-////handle if . is not present in file name
 
 /**
  * assign2
@@ -27,26 +26,27 @@ public class BackPack {
         public void submitAssessments(Student s, assessment a)throws IOException;
         public void viewGrades(Student s);
     }
+    
     static class common implements commonFunc{
 
         @Override
         public void viewLectureMaterial(){
             for(int i=0;i<allslides.size();i++){
-                System.out.println("Title: "+allslides.get(i).topic);
-                for(int j=0;j<allslides.get(i).content.size();j++){
-                    System.out.println("Slide "+(j+1)+" "+allslides.get(i).content.get(j));
+                System.out.println("Title: "+allslides.get(i).getTopic());
+                for(int j=0;j<allslides.get(i).getContent().size();j++){
+                    System.out.println("Slide "+(j+1)+": "+allslides.get(i).getContent().get(j));
                 }
-                System.out.println("Number of slides: "+allslides.get(i).numSlides);
-                System.out.println("Date of upload: "+allslides.get(i).dateandtime);
-                System.out.println("Uploaded by: "+allslides.get(i).uploadedBy);
+                System.out.println("Number of slides: "+allslides.get(i).getNumberofslides());
+                System.out.println("Date of upload: "+allslides.get(i).getdate());
+                System.out.println("Uploaded by: "+allslides.get(i).getUploadedby());
                 System.out.println();
             }
 
             for(int i=0;i<allvideos.size();i++){
-                System.out.println("Title of video : "+allvideos.get(i).topic);
-                System.out.println("Video file: "+allvideos.get(i).filename);
-                System.out.println("Date of upload:"+allvideos.get(i).dateandtime);
-                System.out.println("Uploaded by: "+allvideos.get(i).uploadedBy);
+                System.out.println("Title of video : "+allvideos.get(i).getTopic());
+                System.out.println("Video file: "+allvideos.get(i).getfilename());
+                System.out.println("Date of upload:"+allvideos.get(i).getdate());
+                System.out.println("Uploaded by: "+allvideos.get(i).getUploadedby());
                 System.out.println();
             }
         }
@@ -54,16 +54,18 @@ public class BackPack {
         @Override
         public void viewAssessments(){
 
-            for(int i=0;i<openAssessments.size();i++){
-                assessment a = openAssessments.get(i);
+            for(int i=0;i<allAssessments.size();i++){
+                assessment a=allAssessments.get(i);
+
                 if(a.gettype().equalsIgnoreCase("assignment")){
                     System.out.println("ID: "+a.getassessId()+" Assignment:"+a.getQues()+" Max-Marks:"+a.getMaxmarks());
-                    System.out.println("-------------------------------------------------------------------------------------------");
+                    System.out.println("-------------------");
                 }
                 else if(a.gettype().equalsIgnoreCase("quiz")){
                     System.out.println("ID: "+a.getassessId()+" Question:"+a.getQues());
-                    System.out.println("-------------------------------------------------------------------------------------------");
+                    System.out.println("-------------------");
                 }
+
             }
         }
 
@@ -170,6 +172,37 @@ public class BackPack {
                 s.getMypendingassess().remove(a);
             }
         }
+
+        public assessment addAssessmentHelper()throws IOException{
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    
+            System.out.println("1. Add Assignment\n2. Add Quiz");
+            int ch=Integer.parseInt(br.readLine());
+            int mm=1;
+            String problem;
+            assessment a;
+    
+            if(ch==1){
+                System.out.print("Enter problem statement: ");
+                problem=br.readLine();
+                System.out.print("Enter max marks: ");
+                mm=Integer.parseInt(br.readLine());
+                a=new assessment("Assignment", problem, mm);
+            }
+    
+            else if(ch==2){
+                System.out.print("Enter quiz question: ");
+                problem=br.readLine();
+                a=new assessment("Quiz", problem, mm);
+            }
+    
+            else{
+                a=null;
+            }
+    
+            return a;
+        }
+
     }
 
     static class StudentTasks extends common implements Studenttask{
@@ -183,10 +216,10 @@ public class BackPack {
             {
                 System.out.print("Enter filename of assignment: ");
                 soln=br.readLine();
-                String extention=getExtension(soln);
+                String extension=getExtension(soln);
                 
-                if(!extention.equalsIgnoreCase(".zip")){
-                System.out.println("Only .zip fomat is allowed in submissions");
+                if(!extension.equalsIgnoreCase(".zip")){
+                System.out.println("Only .zip format is allowed in submissions");
                 return;
                 }
             }
@@ -269,27 +302,44 @@ public class BackPack {
     }
 
     static class video{
-        String topic;
-        String filename;
-        String extention;
-        Date dateandtime;
-        String uploadedBy;
+        private String topic;
+        private String filename;
+        private String extension;
+        private Date dateandtime;
+        private String uploadedBy;
 
         video( String topic, String filename,String uploadedBy){
             this.topic=topic;
             this.filename=filename;
             this.uploadedBy=uploadedBy;
-            this.extention=getExtension(filename);
+            this.extension=getExtension(filename);
             dateandtime=new java.util.Date(); //credits: https://www.javatpoint.com/java-get-current-date
         }
 
+        public String getTopic(){
+            return topic;
+        }
+        public String getfilename(){
+            return filename;
+        }
+        public String getextension(){
+            return extension;
+        }
+        public Date getdate(){
+            return dateandtime;
+        }
+        public String getUploadedby(){
+            return uploadedBy;
+        }
+
+
     }    
     static class slide{
-        String topic;
-        int numSlides;
-        ArrayList<String> content=new ArrayList<>();
-        Date dateandtime;
-        String uploadedBy;
+        private String topic;
+        private int numSlides;
+        private ArrayList<String> content=new ArrayList<>();
+        private Date dateandtime;
+        private String uploadedBy;
 
         public void createSlide(String topic,int num,String uploadedBy)throws IOException
         {   
@@ -305,6 +355,21 @@ public class BackPack {
                 String c=br.readLine();
                 this.content.add(c);
             }
+        }
+        public String getTopic(){
+            return topic;
+        }
+        public int getNumberofslides(){
+            return numSlides;
+        }
+        public ArrayList<String> getContent(){
+            return content;
+        }
+        public Date getdate(){
+            return dateandtime;
+        }
+        public String getUploadedby(){
+            return uploadedBy;
         }
     }
 
@@ -390,44 +455,16 @@ public class BackPack {
     
     public static String getExtension(String filename){
         int ldot=filename.lastIndexOf('.');
-        String extention=filename.substring(ldot);
-        return extention;
+        String extension=filename.substring(ldot);
+        return extension;
     }
     public static void displayTeachermenu(){
-        System.out.println("\n1. Add class material\n2. Add assessments\n3. View lecture materials\n4. View assessments\n5. Grade assessments\n6. Close assessment\n7. View comments\n8. Add comments\n9. Logout");
+        System.out.println("1. Add class material\n2. Add assessments\n3. View lecture materials\n4. View assessments\n5. Grade assessments\n6. Close assessment\n7. View comments\n8. Add comments\n9. Logout");
     }
     public static void displayStudentmenu(){
-        System.out.println("\n1. View lecture materials\n2. View assessments\n3. Submit assessment\n4. View grades\n5. View comments\n6. Add comments\n7. Logout");
+        System.out.println("1. View lecture materials\n2. View assessments\n3. Submit assessment\n4. View grades\n5. View comments\n6. Add comments\n7. Logout");
     }
-    public static assessment addAssessmentHelper()throws IOException{
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        System.out.println("1. Add Assignment\n2. Add Quiz");
-        int ch=Integer.parseInt(br.readLine());
-        int mm=1;
-        String problem;
-        assessment a;
-
-        if(ch==1){
-            System.out.print("Enter problem statement: ");
-            problem=br.readLine();
-            System.out.print("Enter max marks: ");
-            mm=Integer.parseInt(br.readLine());
-            a=new assessment("Assignment", problem, mm);
-        }
-
-        else if(ch==2){
-            System.out.print("Enter quiz question: ");
-            problem=br.readLine();
-            a=new assessment("Quiz", problem, mm);
-        }
-
-        else{
-            a=null;
-        }
-
-        return a;
-    }
 
     static int currentAssessmentNumber=0;
     static ArrayList<slide> allslides=new ArrayList<>();
@@ -470,7 +507,8 @@ public class BackPack {
                 int id=Integer.parseInt(br.readLine());
 
                 Teacher loggedinTeacher=allTeachers.get(id);
-                
+
+                System.out.println("\nWelcome "+loggedinTeacher.getName());
                 displayTeachermenu();
 
                 int task=Integer.parseInt(br.readLine());
@@ -503,7 +541,7 @@ public class BackPack {
 
                         video v=new video(topic, file, loggedinTeacher.getName());
 
-                        if(v.extention.equals(".mp4")){
+                        if(v.extension.equals(".mp4")){
                             it.addClassMaterial(v);
                         }
                         else{
@@ -514,7 +552,7 @@ public class BackPack {
                 }
 
                 else if(task==2){
-                    assessment a = addAssessmentHelper();
+                    assessment a = it.addAssessmentHelper();
 
                     if(a!=null){
                         it.addAssessment(a);
@@ -532,20 +570,8 @@ public class BackPack {
 
                 else if(task==5){
                     System.out.println("List of assessments");//displaying all assessments given so far(open plus closed)
-
-                    for(int i=0;i<allAssessments.size();i++){
-                        assessment a=allAssessments.get(i);
-
-                        if(a.gettype().equalsIgnoreCase("assignment")){
-                            System.out.println("ID: "+a.getassessId()+" Assignment:"+a.getQues()+" Max-Marks:"+a.getMaxmarks());
-                            System.out.println("-------------------");
-                        }
-                        else if(a.gettype().equalsIgnoreCase("quiz")){
-                            System.out.println("ID: "+a.getassessId()+" Question:"+a.getQues());
-                            System.out.println("-------------------");
-                        }
-
-                    }
+                    it.viewAssessments();
+                    
                     System.out.print("Enter ID of assessment to view submissions: ");
                     int idx=Integer.parseInt(br.readLine());
                     
@@ -567,7 +593,19 @@ public class BackPack {
 
                 else if(task==6){
                     System.out.println("List of open assessments");
-                    it.viewAssessments();
+                    for(int i=0;i<openAssessments.size();i++){
+                        assessment a=openAssessments.get(i);
+
+                        if(a.gettype().equalsIgnoreCase("assignment")){
+                            System.out.println("ID: "+a.getassessId()+" Assignment:"+a.getQues()+" Max-Marks:"+a.getMaxmarks());
+                            System.out.println("-------------------");
+                        }
+                        else if(a.gettype().equalsIgnoreCase("quiz")){
+                            System.out.println("ID: "+a.getassessId()+" Question:"+a.getQues());
+                            System.out.println("-------------------");
+                        }
+
+                    }
 
                     System.out.println("Enter ID of assessment to be closed");
                     int close=Integer.parseInt(br.readLine());
@@ -586,7 +624,7 @@ public class BackPack {
 
                     it.addComments(cmnt, loggedinTeacher.getName());
                 }
-
+                System.out.println("\nWelcome "+loggedinTeacher.getName());
                 displayTeachermenu();
                 task=Integer.parseInt(br.readLine());
 
@@ -606,6 +644,7 @@ public class BackPack {
 
                 Student loggedinS=allStudents.get(id);
 
+                System.out.println("\nWelcome "+loggedinS.getName());
                 displayStudentmenu();
                 int task=Integer.parseInt(br.readLine());
 
@@ -623,6 +662,7 @@ public class BackPack {
 
                         if(loggedinS.getMypendingassess().size()==0){
                             System.out.println("No pending assessment");
+                            System.out.println("\nWelcome "+loggedinS.getName());
                             displayStudentmenu();
                             task=Integer.parseInt(br.readLine());
                             continue;
@@ -664,7 +704,8 @@ public class BackPack {
 
                         st.addComments(cmnt, loggedinS.getName());
                     }
-
+                
+                System.out.println("\nWelcome "+loggedinS.getName());
                 displayStudentmenu();
                 task=Integer.parseInt(br.readLine());
                 }
