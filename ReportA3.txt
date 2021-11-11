@@ -1,0 +1,30 @@
+In the given assignment I have used 14 different classes (Singular recognized by instance variable det) 
+but all of them are inherited from a single "Matrix" class, so I have stored every matrix created as an object of type "Matrix"
+in an arrayList of Matrix. 'Inheritance' played a crucial role here.
+
+The child classes have their own way of storing the matrix elements, they are independent from the 'Matrix' class's 
+implementation of storing matrix as a 2D array, the child classes "Override" or "Overload" the 'initialize' function of 
+their parents in the inheritance tree [POLYMORPHISM].
+This is very important for efficient storage : for eg- the NULL, Ones, Identity classes dont use a 2D array they just use integer variables for dimension
+, similarly diagonal and scalar classes uses a 1D array and an integer variable respectively.
+
+The getMatrix, getRow, getCol ,methods are also overridden to deliver ccurate matrices.
+
+I have used method 'OVERLOADING' in display and transpose and other places, both these functions can work on a Matrix object or a @D array.
+
+
+MY INHERITANCE TREE IS GIVEN BELOW................
+
+                                        Matrix
+                                        
+                            /          |          |                  \
+                    rectangular        NULL     Ones                 Square
+                    /       \                                 /        |                \           \ 
+                Row         Column                      Symmetric    Skew_Symmetric     Upper       Lower
+                                                           |                            Triangular      Triangular
+                                                        Diagonal
+                                                           |
+                                                         Scalar
+                                                        /       \
+                                                    Identity   Singleton
+                                                

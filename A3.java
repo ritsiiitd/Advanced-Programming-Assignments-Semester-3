@@ -15,6 +15,7 @@ public class A3 {
         protected int scalar_value;
         protected int dia[];
         protected int determinant=Integer.MIN_VALUE;
+        protected int UID;
     //     Matrix(int row,int column,int[][] mat){
     //         this.row=row;
     //         this.column=column;
@@ -196,12 +197,15 @@ public class A3 {
 
         public int[][] adjoint(int [][] matrix){
             int d=matrix.length;
-            int sign=1;
+            int verticalsign=-1;
             int adj[][]=new int[d][d];
             for (int i = 0; i < d; i++) {
+                verticalsign=-1*verticalsign;
+                int sign=verticalsign;
                 for (int j = 0; j < d; j++) {
+                    
                     int [][]cofact= cofactor(matrix, i, j);
-                    adj[i][j]=sign*calculateDeterminant(matrix);
+                    adj[i][j]=sign*calculateDeterminant(cofact);
                     sign=-sign;
                 }
             }
@@ -223,18 +227,20 @@ public class A3 {
                 for(int i=0;i<this.getRow();i++){
                     for (int j = 0; j < this.getCol(); j++) {
                         inv[i][j]=(adj[i][j]/this.determinant);
+                        
                     }
                 }
                 return inv;
             }
+            
             
         }
         public int[][] transpose(){
             int r=this.getMatrix().length;
             int c=this.getMatrix()[0].length;
             int t[][]=new int[c][r];
-            for(int i=0;i<r;i++){
-                for(int j=0;j<c;j++){
+            for(int i=0;i<c;i++){
+                for(int j=0;j<r;j++){
                     t[i][j]=this.getMatrix()[j][i];
                 }
             }
@@ -244,8 +250,8 @@ public class A3 {
             int r=m.length;
             int c=m[0].length;
             int t[][]=new int[c][r];
-            for(int i=0;i<r;i++){
-                for(int j=0;j<c;j++){
+            for(int i=0;i<c;i++){
+                for(int j=0;j<r;j++){
                     t[i][j]=m[j][i];
                 }
             }
@@ -378,6 +384,75 @@ public class A3 {
             }
             return types;
         }
+
+        public static void means(Matrix x){
+            int mat[][];
+            if(x.isScalar() || x.isIdentity()){
+                int scale=1;
+                if(x.isScalar()){
+                    scale = x.scalar_value;
+                } 
+                mat=new int[x.getRow()][x.getCol()];
+                for (int i = 0; i < x.getRow(); i++) {
+                    for (int j = 0; j < x.getCol(); j++) {
+                        if(i==j){
+                            mat[i][j]=scale;
+                        }
+                        else{
+                            mat[i][j]=0;
+                        }
+                    }
+                }
+            }
+            else if(x.isNull() || x.isOnes()){
+                int fill=1;
+                if(x.isNull()){
+                    fill=0;
+                }
+                mat=new int[x.getRow()][x.getCol()];
+                for (int i = 0; i < x.getRow(); i++) {
+                    for (int j = 0; j < x.getCol(); j++) {
+                        mat[i][j]=fill;
+                    }
+                }    
+            }
+            else if(x.isDiagonal()){
+                mat=new int[x.getRow()][x.getCol()];
+                int k=0;
+                for (int i = 0; i < x.getRow(); i++) {
+                    for (int j = 0; j < x.getCol(); j++) {
+                        if(i==j){
+                            mat[i][j]=x.dia[k++];
+                        }
+                        else{
+                            mat[i][j]=0;
+                        }
+                    }
+                }
+            }
+            else{
+                mat=x.getMatrix();
+            }
+            int rw=0,cw=0, total=0;
+            for(int i=0;i<mat.length;i++){
+                rw=0;
+                for(int j=0;j<mat[0].length;j++){
+                    rw+=mat[i][j];total+=mat[i][j];
+                    
+                }
+                System.out.println("Mean of row "+ (i+1) +" = "+ (1.0*rw/mat[0].length));
+            }
+            for(int i=0;i<mat[0].length;i++){
+                cw=0;
+                for(int j=0;j<mat.length;j++){
+                    cw+=mat[j][i];
+                    
+                }
+                System.out.println("Mean of column "+ (i+1) +" = "+ (1.0*cw/mat.length));
+            }
+            System.out.println("Mean of matrix  = "+ (1.0*total/(mat.length*mat[0].length)));
+        }
+
         public void updateMatrix()throws IOException{
             BufferedReader br= new BufferedReader(new InputStreamReader(System.in));
             if(this.isIdentity() || this.isNull() || this.isOnes()){
@@ -431,7 +506,7 @@ public class A3 {
                     if(ri==ci){
                         System.out.println("Enter new element to replace");
                         int ele=Integer.parseInt(br.readLine());
-                        mat[ri][ci]=ele;
+                        this.dia[ri]=ele;
                         System.out.println("Update more elements? 1-> yes 0->no");
                         ch=Integer.parseInt(br.readLine());
                     }
@@ -583,7 +658,7 @@ public class A3 {
     tm.initialize(temp.length, temp[0].length, temp);
     return multiply(m1, tm);
     }
-
+}
 
     static class rectangular extends Matrix{
         public void initialize(int [][]mat,ArrayList<String> types){
@@ -824,6 +899,7 @@ public class A3 {
             row=1;
             this.mat=mat;
             myTypes=types;
+            scalar_value=mat[0][0];
         }
         @Override
         public int[][] getMatrix(){
@@ -845,6 +921,7 @@ public class A3 {
             row=d;
             column=d;
             myTypes=types;
+            scalar_value=1;
         }
         @Override
         public int[][] getMatrix(){
@@ -938,6 +1015,7 @@ public class A3 {
             return this.column;
         }
     }
+
     // static class NULLsq extends square{
 
     //     public void initialize(int d){//overloading
@@ -1472,16 +1550,22 @@ public class A3 {
     static ArrayList<Matrix> allMatrix;
     public static void main(String[] args)throws IOException{
         BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("1. Take matrices as input and label them with appropriate matrix-types.\n2. Create matrices of requested matrix-types and label them with appropriate matrix-types.\n3. Change the elements of a matrix as long as the fixed matrix-type labels remain valid.\n4. Display all the matrix-type labels of a requested matrix.\n\n5. Perform addition, subtraction, multiplication & division.\n6. Perform element-wise operations.[NOT DONE]\n7. Transpose matrices.\n8. Inverse matrices.\n9. Compute means: row-wise mean, column-wise mean, mean of all the elements.\n10. Compute determinants.\n11. Use singleton matrices as scalars, if requested.\n12. Compute A+AT for a matrix A.\n13. Compute Eigen vectors and values[NOT DONE].\n14. Solve sets of linear equations using matrices. [NOT DONE]\n15. Retrieve all the existing matrices (entered or created) having requested matrix-type labels.");
+
         System.out.println("Enter choice");
         int ch = Integer.parseInt(br.readLine());
         allMatrix=new ArrayList<>();
         while(ch!=16){
+            if(ch==0){
+                displayMatrices();
+            }
             if(ch==1){
             
             Matrix x = takeInput();
             
             if(x!=null){
                 allMatrix.add(x);
+                x.UID=matrixCount+1;
                 matrixCount++;
                 System.out.println(x.myTypes);
             display(x);
@@ -1493,6 +1577,7 @@ public class A3 {
                 Matrix  x= createMatrix();
                 if(x!=null){
                     allMatrix.add(x);
+                    x.UID=matrixCount+1;
                     matrixCount++;
                     System.out.println(x.myTypes);
                 System.out.println("Matrix created");
@@ -1530,28 +1615,148 @@ public class A3 {
                 if(c3==1){
                     int addresult[][]=Matrix.add(m1,m2);
                     System.out.println("Addition result");
+                    if(addresult!=null)
                     display(addresult);
                 }
                 if(c3==2){
                     int subresult[][]=Matrix.subtract(m1,m2);
                     System.out.println("Addition result");
+                    if(subresult!=null)
                     display(subresult);
                 }
                 if(c3==3){
                     int mulresult[][]=Matrix.multiply(m1,m2);
                     System.out.println("Addition result");
+                    if(mulresult!=null)
                     display(mulresult);
                 }
                 if(c3==4){
                     int divresult[][]=Matrix.divide(m1, m2);
                     System.out.println("Division result");
+                    if(divresult!=null)
                     display(divresult);
                 }
             }
+            if(ch==7){
+                displayMatrices();
+                System.out.println("Choose a matrix to find transpose");
+                int c1 =Integer.parseInt(br.readLine());
+                Matrix m1 = allMatrix.get(c1-1);
+                int trans[][]=m1.transpose();
+                System.out.println("Transposed");
+                display(trans);
+            }
+            if(ch==8){
+                displayMatrices();
+                System.out.println("Choose a matrix to find inverse");
+                int c1 =Integer.parseInt(br.readLine());
+                Matrix m1 = allMatrix.get(c1-1);
+                int inv[][];
+                inv = m1.inverse();
+                if(inv!=null){
+                    System.out.println("Inversed");
+                    display(inv);
+                }
+                
+            }
+            if(ch==9){
+                displayMatrices();
+                System.out.println("Choose a matrix to find means");
+                int c1 =Integer.parseInt(br.readLine());
+                Matrix m1 = allMatrix.get(c1-1);
+                Matrix.means(m1);
+            }
+            if(ch==10){
+                displayMatrices();
+                System.out.println("Choose a matrix to find determinant");
+                int c1 =Integer.parseInt(br.readLine());
+                Matrix m1 = allMatrix.get(c1-1);
+                if(m1.isRectangular()){
+                    System.out.println("Cant find determinant of rectangular matrix");
+                }
+                else if(m1.isIdentity()){
+                    System.out.println("Determinant = 1");
+                }
+                else if(m1.isNull()){
+                    System.out.println("Determinant = 0");
+                }
+                else if(m1.isScalar()){
+                    int det=(int)Math.pow(m1.scalar_value, m1.getRow());
+                    System.out.println("Determinant = "+ det);
+                }
+                else if(m1.isDiagonal()){
+                    int det=1;
+                    for(int i=0;i<m1.dia.length;i++){
+                        det*=m1.getMatrix()[i][i];
+                    }
+                    System.out.println("Determinant = "+ det);
+                }
+                else{
+                    System.out.println("Determinant = "+ m1.calculateDeterminant(m1.getMatrix()));
+                }
+            }
+            if(ch==11){
+                
+                System.out.println("Doing this may change type of matrix. Do you allow using singleton matrices as a scalar value?");
+                String xyz=br.readLine();
+                if(xyz.equalsIgnoreCase("yes")){
+                displayMatrices();
+                System.out.println("Choose a singleton matrix to use as scalars");
+                int c1 =Integer.parseInt(br.readLine());
+                Matrix m1 = allMatrix.get(c1-1);
+                Matrix m2;
+                if(m1.isSingleton()){
+                    displayMatrices();
+                    System.out.println("Choose a matrix apply scaling");
+                    int c2 =Integer.parseInt(br.readLine());
+                    m2 = allMatrix.get(c2-1);
+                    
+                    
+                    for(int i=0;i<m2.getRow();i++){
+                        for(int j=0;j<m2.getCol();j++){
+                            m2.getMatrix()[i][j]*=m1.getMatrix()[0][0];
+                            m2.myTypes=Matrix.getTypes(m2);
+                        }
+                    }
+                    System.out.println("Scaled successfully");
+                
+                }
+                else{
+                    System.out.println("chosen matrix not singleton");
+                }
+            }
+        }
+            if(ch==12){
+                displayMatrices();
+                System.out.println("Choose a matrix to Compute A + A' ");
+                int c1 =Integer.parseInt(br.readLine());
+                Matrix m1 = allMatrix.get(c1-1);
+                int trans[][]=m1.transpose(m1.getMatrix());
+                Matrix m2=new Matrix();
+                m2.initialize(trans.length, trans[0].length, trans);
+                int addresult[][]=Matrix.add(m1, m2);
+                if(addresult!=null){
+                    display(addresult);
+                }
+            }
+            if(ch==15){
+                System.out.println("enter label");
+                String label=br.readLine();
+                System.out.println("All matrices of given label/n");
+                for(int i=0;i<allMatrix.size();i++){
+                    for(int j=0;j<allMatrix.get(i).myTypes.size();j++){
+                        if(allMatrix.get(i).myTypes.get(j).equalsIgnoreCase(label)){
+                            System.out.println("[ ID = "+allMatrix.get(i).UID+" ]");
+                            display(allMatrix.get(i).getMatrix());
+                            
+                        }
+                    }
+                }
+            }
+            System.out.println("1. Take matrices as input and label them with appropriate matrix-types.\n2. Create matrices of requested matrix-types and label them with appropriate matrix-types.\n3. Change the elements of a matrix as long as the fixed matrix-type labels remain valid.\n4. Display all the matrix-type labels of a requested matrix.\n\n5. Perform addition, subtraction, multiplication & division.\n6. Perform element-wise operations.[NOT DONE]\n7. Transpose matrices.\n8. Inverse matrices.\n9. Compute means: row-wise mean, column-wise mean, mean of all the elements.\n10. Compute determinants.\n11. Use singleton matrices as scalars, if requested.\n12. Compute A+AT for a matrix A.\n13. Compute Eigen vectors and values[NOT DONE].\n14. Solve sets of linear equations using matrices. [NOT DONE]\n15. Retrieve all the existing matrices (entered or created) having requested matrix-type labels.");
              System.out.println("Enter choice");
              ch = Integer.parseInt(br.readLine());
         }
 
     }
-}
 }
