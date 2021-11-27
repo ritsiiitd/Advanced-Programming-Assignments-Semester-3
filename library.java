@@ -105,9 +105,20 @@ public class library{
         }
         Arrays.sort(myLibrary.getRack());
 
-        
+        System.out.println("\n\nAll books sorted and placed");
+        int rack=1,slot=1;
+        int capacity = n/k;
+        System.out.println("Capacity of rack = "+capacity );
+        System.out.println();
         for (Book book : myLibrary.getRack()) {
-
+            
+            if(slot==capacity+1){
+                slot=1;
+                rack++;
+            }
+            System.out.println("Placing in slot "+ slot +" of rack "+ rack);
+            slot++;
+            
             System.out.println("[ "+book.getTitle()+", "+book.getIsbn()+", "+book.getBarcode()+" ]");
 
         }
